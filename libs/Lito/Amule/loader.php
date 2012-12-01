@@ -11,9 +11,10 @@ define('DOCUMENT_ROOT', preg_replace('#[/\\\]+#', '/', realpath(getenv('DOCUMENT
 define('BASE_PATH', preg_replace('#[/\\\]+#', '/', realpath(__DIR__.'/../../../').'/'));
 
 require (__DIR__.'/functions.php');
-require (__DIR__.'/settings.php');
 require (__DIR__.'/Autoload.php');
 
 Autoload::register();
+
+require (BASE_PATH.'/settings.php');
 
 $Api = new Amule($settings);

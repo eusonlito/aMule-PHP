@@ -13,11 +13,20 @@ $Api->debug($url, 'URL', true);
 $incoming = '/home/user/.aMule/Incoming/';
 
 # Create a HTML cache to avoid download for each request
-$html = __DIR__.'/cache/'.md5($url).'.html';
+$cache_html = $settings['cache'].md5($url).'.html';
 
 # Check cache
-if (!is_file($html) || (strtotime('5 days ago') > filemtime($html))) {
-    file_put_contents($html, encode2utf(file_get_contents($url)));
+if (!is_file($cache_html) || (strtotime('5 days ago') > filemtime($cache_html))) {
+    file_put_contents($cache_html, encode2utf(file_get_contents($url)));
+}
+
+# Check previously downloaded files
+$cache_downloads = $settings['cache'].'downloads.txt';
+
+if (is_file($cache_downloads)) {
+    $downloads = file($cache_downloads, FILE_SKIP_EMPTY_LINES);
+} else {
+    $downloads = array();
 }
 
 # Disable XML errors
@@ -25,7 +34,7 @@ libxml_use_internal_errors(true);
 
 # DOM parsers
 $DOM = new DOMDocument();
-$DOM->loadHTMLFile($html);
+$DOM->loadHTMLFile($cache_html);
 
 $XPath = new DOMXPath($DOM);
 
@@ -60,6 +69,12 @@ foreach ($Divs as $Div) {
     # Results are sorted by sources DESC (first result is the more shared)
     $top = $results[0];
 
+    # If the file was downloaded previosly, continue
+    if (in_array($top['name'], $downloads)) {
+        $Api->debug($top['name'], 'File Previously Downloaded', true);
+        continue;
+    }
+
     # If the file already was downloaded, continue
     if (is_file($incoming.$top['name'])) {
         $Api->debug($top['name'], 'File Already Exists', true);
@@ -69,6 +84,9 @@ foreach ($Divs as $Div) {
     # Send the download request to amule daemon
     $Api->download($top['id']);
 }
+
+# Save downloads cache
+file_put_contents($cache_downloads, implode("\n", $downloads));
 
 # Print status and current downloads
 $Api->debug($Api->amulecmd(array('status', 'show DL')));
