@@ -1,4 +1,4 @@
-aMule-PHP it's a easy PHP interface to search and download files using the amulecmd commands and the amuled daemon
+aMule-PHP it's a simple PHP interface to search and download files using the amulecmd command and the amuled daemon
 
 Requires:
 
@@ -11,7 +11,7 @@ You can find more information about amule installation and configuration in <a h
 
 Installation
 --------
-We can download full project with git commands:
+You can download the project with this git command:
 
     $ git clone git://github.com/eusonlito/aMule-PHP.git amule-php
 
