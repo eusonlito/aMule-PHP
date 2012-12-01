@@ -66,7 +66,7 @@ foreach ($Divs as $Div) {
         continue;
     }
 
-    # Results are sorted by sources DESC (first result is the more shared)
+    # Results are sorted by sources DESC (first result is the most shared)
     $top = $results[0];
 
     # If the file was downloaded previosly, continue

@@ -22,21 +22,21 @@ class Amule {
         }
     }
 
+    private function checkAmule ()
+    {
+        $daemon = trim(shell_exec('ps -ef | grep amule | grep -v grep | grep -v $0'));
+
+        if (empty($daemon)) {
+            die('amule app or amuled daemon are not started');
+        }
+    }
+
     private function checkAmulecmd ()
     {
         $this->amulecmd = trim(shell_exec('which amulecmd'));
 
         if (empty($this->amulecmd)) {
             die('amulecmd command does not exists');
-        }
-    }
-
-    private function checkAmule ()
-    {
-        $daemon = trim(shell_exec('ps -ef | grep amule | grep -v grep'));
-
-        if (empty($daemon)) {
-            die('amuled daemon is not started');
         }
     }
 
