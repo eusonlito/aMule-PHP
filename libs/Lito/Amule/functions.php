@@ -38,7 +38,9 @@ function encode2utf ($string)
 
 function fixSearch ($text, $limit = 52)
 {
+    $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
     $text = htmlentities(trim(strip_tags($text)), ENT_NOQUOTES, 'UTF-8');
+    $text = str_replace(array('&nbsp;', '&amp;', '&ndash;', '&rsquo;'), '', $text);
     $text = preg_replace('#&(\w)\w+;#', '$1', $text);
     $text = preg_replace('#\W#', ' ', $text);
     $text = trim(preg_replace('#\s+#', ' ', $text));

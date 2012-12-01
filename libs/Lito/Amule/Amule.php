@@ -154,7 +154,7 @@ class Amule {
         return $string ? $responses[0] : $responses;
     }
 
-    public function search ($query, $net = 'global', $wait = 10)
+    public function search ($query, $net = 'global', $wait = 5)
     {
         $search = fixSearch($query);
 
@@ -168,7 +168,26 @@ class Amule {
 
         $this->debug($content);
 
-        sleep($wait);
+        $repeat = 0;
+
+        while (true) {
+            if ($repeat === 10) {
+                break;
+            }
+
+            sleep($wait);
+
+            $progress = $this->amulecmd('progress');
+            $progress = intval(preg_replace('#[^0-9]#', '', $progress));
+
+            if ($progress === 100) {
+                break;
+            }
+
+            $this->debug($progress, 'Search progress', true);
+
+            ++$repeat;
+        }
 
         $content = $this->amulecmd('results');
 
