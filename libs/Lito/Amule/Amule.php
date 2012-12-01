@@ -15,7 +15,7 @@ class Amule {
     public function __construct ($settings = array())
     {
         $this->checkAmulecmd();
-        $this->checkAmuled();
+        $this->checkAmule();
 
         if ($settings) {
             $this->setSettings($settings);
@@ -31,9 +31,9 @@ class Amule {
         }
     }
 
-    private function checkAmuled ()
+    private function checkAmule ()
     {
-        $daemon = trim(shell_exec('ps -ef | grep amuled | grep -v grep'));
+        $daemon = trim(shell_exec('ps -ef | grep amule | grep -v grep'));
 
         if (empty($daemon)) {
             die('amuled daemon is not started');
