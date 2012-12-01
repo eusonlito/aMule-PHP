@@ -24,7 +24,7 @@ if (!is_file($cache_html) || (strtotime('5 days ago') > filemtime($cache_html)))
 $cache_downloads = $settings['cache'].'downloads.txt';
 
 if (is_file($cache_downloads)) {
-    $downloads = file($cache_downloads, FILE_SKIP_EMPTY_LINES);
+    $downloads = file($cache_downloads, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 } else {
     $downloads = array();
 }
@@ -51,7 +51,7 @@ foreach ($Divs as $Div) {
     $title = $Div->getElementsByTagName('img')->item(0)->getAttribute('alt');
 
     # Convert song title in a simple string
-    $search = alphaNumeric($title);
+    $search = fixSearch($title);
 
     if (empty($search)) {
         $Api->debug(array($title), 'Empty Title', true);

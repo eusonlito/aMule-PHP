@@ -156,7 +156,7 @@ class Amule {
 
     public function search ($query, $net = 'global', $wait = 10)
     {
-        $search = cleanText(alphaNumeric($query));
+        $search = fixSearch($query);
 
         if (!$search) {
             $this->debug($query, 'No search defined', true);

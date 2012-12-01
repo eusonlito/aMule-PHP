@@ -36,30 +36,19 @@ function encode2utf ($string)
     }
 }
 
-function textCutter ($text, $limit)
-{
-    if (strlen($text) <= $limit) {
-        return $text;
-    }
-
-    return substr($text, 0, strrpos(substr($text, 0, $limit), ' '));
-}
-
-function alphaNumeric ($text)
+function fixSearch ($text, $limit = 52)
 {
     $text = htmlentities(trim(strip_tags($text)), ENT_NOQUOTES, 'UTF-8');
     $text = preg_replace('#&(\w)\w+;#', '$1', $text);
     $text = preg_replace('#\W#', ' ', $text);
-    $text = preg_replace('#\s+#', ' ', $text);
+    $text = trim(preg_replace('#\s+#', ' ', $text));
 
-    return trim($text);
-}
-
-function cleanText ($text, $limit = 52)
-{
     if (strlen($text) <= $limit) {
         return $text;
     }
 
-    return textCutter(str_replace(array(' of ', ' the ', ' ft ', ' dj ', ' a ', ' rmx ', ' la '), ' ', $text), $limit);
+    $text = preg_replace('# (\w{1,2}([^\w]|$))+#', ' ', $text);
+    $text = trim(preg_replace('#\s+#', ' ', $text));
+
+    return substr($text, 0, strrpos(substr($text, 0, $limit), ' '));
 }
