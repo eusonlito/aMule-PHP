@@ -1,5 +1,6 @@
 <?php
 include (__DIR__.'/libs/Lito/Amule/loader.php');
+include (__DIR__.'/template-head.php');
 
 echo '<pre>';
 
@@ -88,5 +89,10 @@ foreach ($Divs as $Div) {
 # Save downloads cache
 file_put_contents($cache_downloads, implode("\n", $downloads));
 
-# Print status and current downloads
-$Api->debug($Api->amulecmd(array('status', 'show DL')));
+# Print connection status
+$Api->debug($Api->amulecmd('status'));
+
+# Print current downloads
+$Api->printTable($Api->getDownloads(), array('file', 'percent', 'speed', 'status', 'sources'));
+
+include (__DIR__.'/template-footer.php');

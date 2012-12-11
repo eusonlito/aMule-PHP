@@ -81,7 +81,7 @@ class Amule {
     }
 
     public function debug ($message, $title = null, $custom = null) {
-        if (!$this->debug) {
+        if ($this->debug !== true) {
             return;
         }
 
@@ -158,7 +158,7 @@ class Amule {
     {
         $search = fixSearch($query);
 
-        if (!$search) {
+        if (empty($search)) {
             $this->debug($query, 'No search defined', true);
 
             return array();
@@ -180,7 +180,7 @@ class Amule {
             $progress = $this->amulecmd('progress');
             $progress = intval(preg_replace('#[^0-9]#', '', $progress));
 
-            if ($progress === 100) {
+            if (($progress === 0) || ($progress === 100)) {
                 break;
             }
 
@@ -199,14 +199,18 @@ class Amule {
             return array();
         }
 
-        $this->debug($content);
-
         $results = array();
 
         for ($i = 0, $max = count($files[0]); $i < $max; $i++) {
+            $name = trim($files[2][$i]);
+
+            if (strpos($name, '!') === 0) {
+                continue;
+            }
+
             $results[] = array(
                 'id' => (string)$files[1][$i],
-                'name' => trim($files[2][$i]),
+                'name' => $name,
                 'size' => floatval($files[3][$i]),
                 'sources' => intval($files[4][$i])
             );
@@ -215,6 +219,8 @@ class Amule {
         usort($results, function ($a, $b) {
             return $a['sources'] > $b['sources'] ? -1 : 1;
         });
+
+        $this->printTable($results);
 
         return $results;
     }
@@ -240,5 +246,111 @@ class Amule {
         }
 
         return false;
+    }
+
+    public function getDownloads ()
+    {
+        $content = explode("\n", $this->amulecmd('show DL'));
+
+        array_shift($content);
+
+        $max = count($content);
+        $downloads = array();
+
+        for ($k = 0, $i = 0; $i < $max; $k++, $i += 2) {
+            $expression = 
+                '^([0-9a-z]+)\s*'.
+                '([^\[]+)'.
+                '\[([0-9\.]+)%\]\s*'.
+                '([0-9]+/\s*[0-9]+\s*[\+0-9]*\s*[\(\)0-9]*)\s*'.
+                '\-\s*([a-z0-9\.]+)\s*'.
+                '\-\s*([a-z0-9\.]+)\s*'.
+                '\-\s*([a-z]+\s*\[[a-z]+\])\s*'.
+                '(\-\s*(.*))?'
+            ;
+
+            preg_match('#'.$expression.'#i', trim($content[$i]).' '.trim($content[$i + 1]), $row);
+
+            if (empty($row)) {
+                continue;
+            }
+
+            array_shift($row);
+
+            $downloads[] = array(
+                'hash' => $row[0],
+                'file' => $row[1],
+                'percent' => $row[2],
+                'sources' => preg_replace('#\s+#', ' ', trim($row[3])),
+                'status' => $row[4],
+                'tmp' => $row[5],
+                'priority' => $row[6],
+                'speed' => (isset($row[8]) ? $row[8] : 0)
+            );
+        }
+
+        usort($downloads, function ($a, $b) {
+            if ($a['status'] === $b['status']) {
+                return $a['percent'] > $b['percent'] ? -1 : 1;
+            } else {
+                return ($a['status'] === 'Downloading') ? -1 : 1;
+            }
+        });
+
+        return $downloads;
+    }
+
+    public function printTable ($data, $fields = array(), $force = null)
+    {
+        if (($this->debug !== true) && ($force !== true)) {
+            return '';
+        }
+
+        if (empty($data)) {
+            return '';
+        }
+
+        if (empty($fields)) {
+            $fields = array_keys($data[0]);
+        } else if (is_string($fields)) {
+            $fields = array($fields);
+        }
+
+        $valid_fields = array_keys($data[0]);
+
+        foreach ($fields as $key => $field) {
+            if (!in_array($field, $valid_fields)) {
+                unset($fields[$key]);
+            }
+        }
+
+        if (empty($fields)) {
+            return '';
+        }
+
+        echo '<table>';
+        echo '<thead>';
+        echo '<tr>';
+
+        foreach ($fields as $field) {
+            echo '<th>'.ucfirst($field).'</th>';
+        }
+
+        echo '</tr>';
+        echo '</thead>';
+        echo '<tbody>';
+
+        foreach ($data as $row) {
+            echo '<tr>';
+
+            foreach ($fields as $field) {
+                echo '<td>'.$row[$field].'</td>';
+            }
+
+            echo '</tr>';
+        }
+
+        echo '</tbody>';
+        echo '</table>';
     }
 }

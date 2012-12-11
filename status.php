@@ -1,6 +1,11 @@
 <?php
 include (__DIR__.'/libs/Lito/Amule/loader.php');
+include (__DIR__.'/template-head.php');
 
 echo '<pre>';
 
-$Api->debug($Api->amulecmd(array('status', 'show DL')));
+$Api->debug($Api->amulecmd('status'));
+
+$Api->printTable($Api->getDownloads(), array('file', 'percent', 'speed', 'status', 'sources'));
+
+include (__DIR__.'/template-footer.php');
