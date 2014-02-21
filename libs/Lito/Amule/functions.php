@@ -54,3 +54,21 @@ function fixSearch ($text, $limit = 52)
 
     return substr($text, 0, strrpos(substr($text, 0, $limit), ' '));
 }
+
+function fixHtml ($html, $dom = false)
+{
+    libxml_use_internal_errors(true);
+
+    $DOM = new \DOMDocument;
+    $DOM->recover = true;
+    $DOM->preserveWhiteSpace = false;
+
+    $DOM->loadHtml(file_get_contents($html));
+
+    $XPath = new \DOMXPath($DOM);
+
+    libxml_use_internal_errors(false);
+
+    return $dom ? array($DOM, $XPath) : $XPath;
+}
+

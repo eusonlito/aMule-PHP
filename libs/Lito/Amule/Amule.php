@@ -204,7 +204,7 @@ class Amule {
         for ($i = 0, $max = count($files[0]); $i < $max; $i++) {
             $name = trim($files[2][$i]);
 
-            if (in_array(substr($name, 0, 1), array('!', '-', '_'))) {
+            if (preg_match('#^[0-9a-z\(]#i', $name) !== 1) {
                 continue;
             }
 
